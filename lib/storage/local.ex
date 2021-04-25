@@ -12,7 +12,7 @@ defmodule ExTus.Storage.Local do
     "#{base_name}_#{timestamp}#{Path.extname(file_name)}"
   end
 
-  def initiate_file(file_name) do
+  def initiate_file(file_name, _) do
     dir = storage_dir()
     filename = filename(file_name)
 

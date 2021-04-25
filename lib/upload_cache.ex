@@ -1,5 +1,11 @@
 defmodule ExTus.UploadInfo do
-  defstruct identifier: "", filename: "", offset: 0, size: 0, started_at: nil, options: %{}
+  defstruct identifier: "",
+            filename: "",
+            file_rn_type: nil,
+            offset: 0,
+            size: 0,
+            started_at: nil,
+            options: %{}
 end
 
 defmodule ExTus.UploadCache do

@@ -141,7 +141,7 @@ defmodule ExTus.Actions do
     end
   end
 
-  def post(conn, create_cb) do
+  def post(conn, rn_file_attrs, create_cb) do
     headers = Utils.read_headers(conn)
 
     meta = Utils.parse_meta_data(headers["upload-metadata"])
@@ -155,11 +155,12 @@ defmodule ExTus.Actions do
         (meta["filename"] || "")
         |> Base.decode64!()
 
-      {:ok, {identifier, filename}} = storage().initiate_file(file_name)
+      {:ok, {identifier, filename}} = storage().initiate_file(file_name, rn_file_attrs)
 
       info = %UploadInfo{
         identifier: identifier,
         filename: filename,
+        file_rn_type: rn_file_attrs.file_rn_type,
         size: upload_length,
         started_at: DateTime.utc_now() |> DateTime.to_iso8601()
       }
@@ -191,7 +192,7 @@ defmodule ExTus.Actions do
       |> Utils.set_base_resp()
       |> resp(404, "Not Found")
     else
-      case storage().delete(upload_info) do
+      case storage().delete(upload_info, upload_info.file_rn_type) do
         :ok ->
           conn
           |> Utils.set_base_resp()

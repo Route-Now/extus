@@ -14,7 +14,8 @@ defmodule ExTus.Controller do
       end
 
       def post(conn, _params) do
-        ExTus.Actions.post(conn, &on_begin_upload/1)
+        rn_file_attrs = conn.assigns[:rn_file_attrs]
+        ExTus.Actions.post(conn, rn_file_attrs, &on_begin_upload/1)
       end
 
       def delete(conn, %{"file" => file} = params) do

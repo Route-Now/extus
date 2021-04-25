@@ -1,5 +1,5 @@
 defmodule ExTus.Storage do
-  @callback initiate_file(String.t()) :: Tuple.type()
+  @callback initiate_file(String.t(), map) :: Tuple.type()
   @callback put_file(map, String.t()) :: Tuple.type()
   @callback append_data(map, iodata) :: Tuple.type()
   @callback complete_file(map) :: Tuple.type()

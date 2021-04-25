@@ -1,24 +1,18 @@
 defmodule ExTus.Storage.S3 do
   use ExTus.Storage
 
-  def storage_dir() do
-    time = DateTime.utc_now()
-    "#{time.year}/#{time.month}/#{time.day}"
-  end
-
   def filename(file_name) do
-    base_name = Path.basename(file_name, Path.extname(file_name))
+    base_name = Path.basename(file_name, Path.extname(file_name)) |> String.trim()
     timestamp = DateTime.utc_now() |> DateTime.to_unix()
     "#{base_name}_#{timestamp}#{Path.extname(file_name)}"
   end
 
-  def initiate_file(file_name) do
-    dir = storage_dir()
+  def initiate_file(file_name, rn_file_attrs) do
     filename = filename(file_name)
-    file_path = Path.join([base_dir(), dir, filename])
+    file_path = Path.join([rn_file_attrs.base_dir, rn_file_attrs.file_path, filename])
 
     %{bucket: "", path: file_path, opts: [], upload_id: nil}
-    |> ExAws.S3.Upload.initialize(host: endpoint(bucket()))
+    |> ExAws.S3.Upload.initialize(host: endpoint(bucket(rn_file_attrs.file_rn_type)))
     |> case do
       {:ok, rs} -> {:ok, {rs.upload_id, file_path}}
       err -> err
@@ -28,13 +22,17 @@ defmodule ExTus.Storage.S3 do
   def put_file(%{filename: _file_path}, _destination) do
   end
 
-  def append_data(%{identifier: upload_id, filename: file, options: options} = info, data) do
+  def append_data(
+        %{identifier: upload_id, filename: file, file_rn_type: file_rn_type, options: options} =
+          info,
+        data
+      ) do
     # div(info.offset, 5 * 1024 * 1024) + 1 # 5MB each part
     part_id = (options[:current_part] || 0) + 1
 
     ""
     |> ExAws.S3.upload_part(file, upload_id, part_id, data, "Content-Length": byte_size(data))
-    |> ExAws.request(host: endpoint(bucket()))
+    |> ExAws.request(host: endpoint(bucket(file_rn_type)))
     |> case do
       {:ok, response} ->
         %{headers: headers} = response
@@ -56,7 +54,12 @@ defmodule ExTus.Storage.S3 do
     end
   end
 
-  def complete_file(%{filename: file, identifier: upload_id, options: options}) do
+  def complete_file(%{
+        filename: file,
+        identifier: upload_id,
+        file_rn_type: file_rn_type,
+        options: options
+      }) do
     parts = options[:parts] || []
 
     ""
@@ -65,27 +68,23 @@ defmodule ExTus.Storage.S3 do
       upload_id,
       Enum.sort_by(parts, &elem(&1, 0))
     )
-    |> ExAws.request(host: endpoint(bucket()))
+    |> ExAws.request(host: endpoint(bucket(file_rn_type)))
   end
 
-  def url(file) do
-    Path.join(asset_host(), file)
+  def url(file, file_rn_type) do
+    Path.join(asset_host(file_rn_type), file)
   end
 
-  def abort_upload(%{identifier: upload_id, filename: file}) do
+  def abort_upload(%{identifier: upload_id, file_rn_type: file_rn_type, filename: file}) do
     ""
     |> ExAws.S3.abort_multipart_upload(file, upload_id)
-    |> ExAws.request(host: endpoint(bucket()))
+    |> ExAws.request(host: endpoint(bucket(file_rn_type)))
   end
 
-  def delete(file) do
+  def delete(file, file_rn_type) do
     ""
     |> ExAws.S3.delete_object(file)
-    |> ExAws.request(host: endpoint(bucket()))
-  end
-
-  defp base_dir() do
-    Application.get_env(:extus, :base_dir)
+    |> ExAws.request(host: endpoint(bucket(file_rn_type)))
   end
 
   defp chunk_size do
@@ -93,9 +92,8 @@ defmodule ExTus.Storage.S3 do
     |> Keyword.get(:chunk_size, 5 * 1024 * 1024)
   end
 
-  defp bucket do
-    Application.get_env(:extus, :s3, [])
-    |> Keyword.get(:bucket)
+  defp bucket(file_type) do
+    Application.get_env(:extus, :s3, []) |> Keyword.get(:bucket) |> Keyword.get(file_type)
   end
 
   defp virtual_host() do
@@ -114,7 +112,7 @@ defmodule ExTus.Storage.S3 do
     end
   end
 
-  defp asset_host do
-    Application.get_env(:extus, :asset_host, host(bucket()))
+  defp asset_host(file_rn_type) do
+    Application.get_env(:extus, :asset_host, host(bucket(file_rn_type)))
   end
 end

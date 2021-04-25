@@ -2,16 +2,17 @@ defmodule Extus.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :extus,
-     version: "0.1.1",
-     elixir: "~> 1.4",
-     description: "An implementation of resumable upload protocol TUS in Elixir",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     deps: deps(),
-     package: package(),
-     source_url: "https://github.com/bluzky/extus"
-   ]
+    [
+      app: :extus,
+      version: "0.1.1",
+      elixir: "~> 1.4",
+      description: "An implementation of resumable upload protocol TUS in Elixir",
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      deps: deps(),
+      package: package(),
+      source_url: "https://github.com/Route-Now/extus"
+    ]
   end
 
   # Configuration for the OTP application
@@ -27,9 +28,7 @@ defmodule Extus.Mixfile do
 
   def package() do
     [
-      licenses: ["MIT"],
-      maintainers: ["Dung Nguyen", "bluesky.1289@gmail.com"],
-      links: %{github: "https://github.com/bluzky/extus"}
+      licenses: ["MIT"]
     ]
   end
 

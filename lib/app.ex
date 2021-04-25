@@ -4,9 +4,11 @@ defmodule ExTus.App do
 
   def start(_, _) do
     import Supervisor.Spec
+
     children = [
       worker(ExTus.UploadCache, [])
     ]
+
     Supervisor.start_link(children, strategy: :one_for_one)
   end
 end

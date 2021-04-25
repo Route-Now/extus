@@ -1,23 +1,24 @@
 defmodule ExTus.Config do
   # this is some hard code config, it will be configurable
-  @upload_url  "/files"
-  @upload_folder  "./uploads/"
-  @tus_api_version  "1.0.0"
-  @tus_api_version_supported  "1.0.0"
-  @tus_max_file_size  4294967296 # 4GByte
-  @file_overwrite  true
-  @upload_finish_cb  nil
-  @upload_file_handler_cb  nil
+  @upload_url "/files"
+  @upload_folder "./uploads/"
+  @tus_api_version "1.0.0"
+  @tus_api_version_supported "1.0.0"
+  # 4GByte
+  @tus_max_file_size 4_294_967_296
+  @file_overwrite true
+  @upload_finish_cb nil
+  @upload_file_handler_cb nil
   @extensions [
-        "creation",
-        #"expiration",
-        "termination",
-        "checksum",
-        #{}"creation-defer-length",
-        # "checksum-trailer",          # todo
-        #{}"concatenation",
-        # "concatenation-unfinished",  # todo
-    ]
+    "creation",
+    # "expiration",
+    "termination",
+    "checksum"
+    # {}"creation-defer-length",
+    # "checksum-trailer",          # todo
+    # {}"concatenation",
+    # "concatenation-unfinished",  # todo
+  ]
 
   @hash_algorithms ["sha1", "md5"]
 

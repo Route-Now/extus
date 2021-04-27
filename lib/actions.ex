@@ -179,6 +179,7 @@ defmodule ExTus.Actions do
       conn
       |> put_resp_header("Tus-Resumable", ExTus.Config.tus_api_version())
       |> put_resp_header("Location", location)
+      |> put_resp_header("FileURL", filename)
       |> Utils.put_cors_headers()
       |> resp(201, "")
     end

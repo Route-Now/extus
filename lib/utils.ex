@@ -28,7 +28,7 @@ defmodule ExTus.Utils do
     # |> put_resp_header("Access-Control-Allow-Origin", "*")
     |> put_resp_header(
       "Access-Control-Expose-Headers",
-      "Upload-Offset, Location, Upload-Length, Tus-Version, Tus-Resumable, Tus-Max-Size, Tus-Extension, Upload-Metadata"
+      "Upload-Offset, Location, Upload-Length, Tus-Version, Tus-Resumable, Tus-Max-Size, Tus-Extension, Upload-Metadata, FileURL"
     )
   end
 end
